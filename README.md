@@ -112,7 +112,29 @@ oc apply -f ~/Downloads/demo-cluster-cluster-init-secrets.yaml -n stackrox
 **NOTE**: This demo uses the same cluster as central and secured cluster. In a real time scenario there will be many different secured clusters.
 Please ensure to install the ACS Operator in all the secured cluster in order to manage the SecuredCluster CR.
 
-Create the Secured Cluster custom Resource.
+The SecuredCluster custom resource is quite simple. The following example shows the configuration for a `demo-cluster` target. Notice the `collector`
+configuration, with the collection method set to `KernelModule`. The alternative collection approach would be `eBPF`. 
+The `TolerateTaints` lets the Collector daemonset be deployed also on nodes with special taints, like the ODF nodes.
+```
+apiVersion: platform.stackrox.io/v1alpha1
+kind: SecuredCluster
+metadata:
+  name: stackrox-secured-cluster-services
+  namespace: stackrox
+spec:
+  admissionControl:
+    listenOnCreates: false
+    listenOnEvents: true
+    listenOnUpdates: false
+  clusterName: demo-cluster
+  perNode:
+    collector:
+      collection: KernelModule
+      imageFlavor: Regular
+    taintToleration: TolerateTaints
+```
+
+Create the Secured Cluster custom Resource using (and optionally custumizing) the example provided in the repository.
 ```
 oc apply -f stackrox-secured-cluster-services.yaml -n stackrox
 ```
